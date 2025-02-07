@@ -4,5 +4,6 @@ import com.lebocoin.domain.model.Information
 import com.lebocoin.domain.model.ResultOf
 
 interface InformationRepository {
-    suspend fun getInformation(): ResultOf<List<Information>>
+    suspend fun getRemoteInformation(): ResultOf<Unit>
+    fun getInformation(limit: Int, offset: Int): List<Information>
 }
