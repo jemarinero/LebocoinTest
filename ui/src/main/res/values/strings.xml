@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="txt_loading_data">Loading data...</string>
-    <string name="msg_service_error">Service not available</string>
-    <string name="msg_connection_error">Connection Error</string>
-    <string name="msg_unauthorized_error">User is not authorized</string>
-    <string name="msg_server_error">Server error</string>
-    <string name="msg_generic_error">Unexpected error occured</string>
+    <string name="app_name">Leboncoin Test App</string>
 </resources>

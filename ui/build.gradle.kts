@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.lottie.compose)
+    implementation(libs.coil)
 
     implementation(libs.hilt)
     implementation(libs.hilt.navigation.compose)
