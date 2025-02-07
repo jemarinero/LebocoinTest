@@ -11,6 +11,9 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -19,8 +22,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LebocoinTest"
+rootProject.name = "LeboncoinTest"
 include(":app")
 include(":data")
 include(":domain")
 include(":ui")
+include(":libs")
