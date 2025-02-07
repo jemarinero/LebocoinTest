@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LebocoinTest"
+rootProject.name = "LeboncoinTest"
 include(":app")
 include(":data")
 include(":domain")
