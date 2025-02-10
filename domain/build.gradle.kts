@@ -41,6 +41,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
+    testImplementation(libs.test.turbine)
     testImplementation(libs.mockk)
     testImplementation(projects.libs)
 }
