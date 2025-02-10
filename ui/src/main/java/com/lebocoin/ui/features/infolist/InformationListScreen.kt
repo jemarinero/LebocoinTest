@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
 import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.domain.model.Information
 import com.lebocoin.ui.R
@@ -128,6 +129,7 @@ fun InformationScreen(
 
 @Composable
 fun InformationCard(data: Information) {
+    val context = LocalContext.current
     Card {
         Row(
             modifier = Modifier
@@ -137,13 +139,23 @@ fun InformationCard(data: Information) {
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageUrl = data.thumbnailUrl
+            val placeholderImage = R.drawable.ic_image_placeholder
+            val imageRequest = ImageRequest.Builder(context)
+                .data(imageUrl)
+                .memoryCacheKey(imageUrl)
+                .diskCacheKey(imageUrl)
+                .placeholder(placeholderImage)
+                .error(placeholderImage)
+                .fallback(placeholderImage)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .transformations(CircleCropTransformation())
+                .build()
+
+
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .addHeader("User-Agent", WebSettings.getDefaultUserAgent(LocalContext.current))
-                    .data(data.thumbnailUrl)
-                    .crossfade(true)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .build(),
+                model = imageRequest,
                 placeholder = painterResource(R.drawable.ic_image_placeholder),
                 error = painterResource(R.drawable.ic_image_placeholder),
                 fallback = painterResource(R.drawable.ic_image_placeholder),
