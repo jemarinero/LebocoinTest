@@ -7,7 +7,7 @@ import com.lebocoin.data.datasource.InformationRemoteDS
 import com.lebocoin.data.model.toDomain
 import com.lebocoin.data.model.toEntity
 import com.lebocoin.domain.model.Information
-import com.lebocoin.domain.model.RequestFailure
+import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.domain.model.ResultOf
 import com.lebocoin.domain.model.doIfFailure
 import com.lebocoin.domain.model.doIfSuccess
@@ -23,7 +23,7 @@ constructor(
 
     override suspend fun getRemoteInformation(): ResultOf<Unit> {
         val result = remoteDS.getInformation()
-        var response: ResultOf<Unit> = ResultOf.Failure(RequestFailure.UnknownError)
+        var response: ResultOf<Unit> = ResultOf.Failure(ErrorType.UnknownError)
         result.doIfSuccess { data ->
             localDS.deleteAll()
             data.forEach { info ->
@@ -36,11 +36,17 @@ constructor(
            response = ResultOf.Success(Unit)
         }
         result.doIfFailure {
-            response = ResultOf.Failure(it ?: RequestFailure.UnknownError)
+            response = ResultOf.Failure(it ?: ErrorType.UnknownError)
         }
         return response
     }
 
-    override fun getInformation(limit: Int, offset: Int): List<Information> =
-        localDS.getAll(limit, offset).map { it.toDomain() }
+    override fun getInformation(limit: Int, offset: Int): ResultOf<List<Information>> {
+        val result = localDS.getAll(limit, offset)
+        return if(result.isEmpty()){
+            ResultOf.Failure(ErrorType.EmptyError)
+        } else {
+            ResultOf.Success(result.map { it.toDomain() })
+        }
+    }
 }

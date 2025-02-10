@@ -13,15 +13,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.ui.R
 
 @Composable
 fun SplashScreen(
     modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel(),
+    onError: (errorType: ErrorType?) -> Unit,
     onAnimationFinished: () -> Unit
 ) {
     val downloadState = viewModel.downloadState.collectAsStateWithLifecycle()
+    val errorState = viewModel.errorState.collectAsStateWithLifecycle()
+    if(errorState.value.errorType != null) {
+        onError.invoke(errorState.value.errorType)
+        viewModel.clearError()
+    }
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
