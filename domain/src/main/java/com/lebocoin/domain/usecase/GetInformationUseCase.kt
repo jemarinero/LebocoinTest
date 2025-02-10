@@ -18,7 +18,7 @@ constructor(
 ): BaseUseCase<Pagination, ResultOf<List<Information>>>(dispatcherProvider){
 
     override fun configure(param: Pagination): Flow<ResultOf<List<Information>>> = flow {
-        emit(ResultOf.Success(informationRepository.getInformation(param.limit, param.offset)))
+        emit(informationRepository.getInformation(param.limit, param.offset))
     }
 
     data class Pagination(

@@ -2,6 +2,8 @@ package com.lebocoin.ui.features.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lebocoin.domain.model.ErrorType
+import com.lebocoin.domain.model.doIfFailure
 import com.lebocoin.domain.usecase.DownloadInformationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,15 +27,35 @@ constructor(
     val downloadState: StateFlow<Boolean>
         get() = _downloadState.asStateFlow()
 
+    private val _errorState = MutableStateFlow(OnError())
+    val errorState: StateFlow<OnError>
+        get() = _errorState.asStateFlow()
+
     init {
         downloadInformation()
     }
 
     private fun downloadInformation() {
         downloadInformationUseCase.execute(Unit)
-            .catch { _downloadState.update { true } }
-            .onEach { _downloadState.update { true } }
+            .catch {
+                _errorState.update { OnError(ErrorType.UnknownError) }
+                _downloadState.update { true }
+            }
+            .onEach {
+                it.doIfFailure { error ->
+                    _errorState.update { OnError(error) }
+                }
+                _downloadState.update { true }
+            }
             .launchIn(viewModelScope)
 
     }
+
+    fun clearError() {
+        _errorState.update { OnError() }
+    }
+
+    data class OnError(
+        val errorType: ErrorType? = null
+    )
 }

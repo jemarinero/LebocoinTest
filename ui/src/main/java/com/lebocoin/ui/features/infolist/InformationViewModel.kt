@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lebocoin.domain.model.Information
+import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.domain.model.doIfFailure
 import com.lebocoin.domain.model.doIfSuccess
 import com.lebocoin.domain.usecase.GetInformationUseCase
@@ -28,10 +29,14 @@ constructor(
     var infoList = MutableStateFlow<List<Information>>(emptyList())
         private  set
 
-    private val _pagingState =
-        MutableStateFlow(PaginationState.LOADING)
+    private val _pagingState = MutableStateFlow(PaginationState.LOADING)
     val pagingState: StateFlow<PaginationState>
         get() = _pagingState.asStateFlow()
+
+    private val _errorState = MutableStateFlow(OnError())
+    val errorState: StateFlow<OnError>
+        get() = _errorState.asStateFlow()
+
 
     private var page = 0
     var canPaginate by mutableStateOf(false)
@@ -51,6 +56,7 @@ constructor(
                     if (page == INITIAL_PAGE) {
                         if (data.isEmpty()) {
                             _pagingState.update { PaginationState.EMPTY }
+                            _errorState.update {  OnError(ErrorType.EmptyError) }
                             return@onEach
                         }
                         infoList.value = emptyList()
@@ -69,8 +75,9 @@ constructor(
                         _pagingState.update { PaginationState.PAGINATION_EXHAUST }
                     }
                 }
-                res.doIfFailure{
+                res.doIfFailure{ failure ->
                     _pagingState.update { if (page == INITIAL_PAGE) PaginationState.ERROR else PaginationState.PAGINATION_EXHAUST }
+                    _errorState.update { OnError(failure) }
                 }
             }
             .launchIn(viewModelScope)
@@ -82,10 +89,12 @@ constructor(
         canPaginate = false
     }
 
-    data class UiState(
-        val isLoading: Boolean = false,
-        val data: List<Information> = emptyList(),
-        val isError: Boolean = false
+    fun clearError() {
+        _errorState.update { OnError() }
+    }
+
+    data class OnError(
+        val errorType: ErrorType? = null
     )
 
     enum class PaginationState {

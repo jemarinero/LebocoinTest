@@ -3,6 +3,7 @@ package com.lebocoin.ui.features.infolist
 import android.webkit.WebSettings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,18 +38,25 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
+import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.domain.model.Information
 import com.lebocoin.ui.R
+import com.lebocoin.ui.components.ErrorComponent
 import com.lebocoin.ui.features.infolist.InformationViewModel.PaginationState
+import com.lebocoin.ui.navigation.NavigationItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InformationScreen(
     modifier: Modifier = Modifier,
-    viewModel: InformationViewModel = hiltViewModel()
+    viewModel: InformationViewModel = hiltViewModel(),
+    onError: (errorType: ErrorType?) -> Unit,
 ) {
 
     LaunchedEffect(key1 = Unit) {
@@ -59,6 +67,7 @@ fun InformationScreen(
     val lazyColumnListState = rememberLazyListState()
     val infoList = viewModel.infoList.collectAsStateWithLifecycle()
     val pagingState = viewModel.pagingState.collectAsStateWithLifecycle()
+    val errorState = viewModel.errorState.collectAsStateWithLifecycle()
 
     val shouldPaginate = remember {
         derivedStateOf {
@@ -74,6 +83,11 @@ fun InformationScreen(
             viewModel.getInformation()
         }
     }
+
+    if(errorState.value.errorType != null) {
+        onError.invoke(errorState.value.errorType)
+        viewModel.clearError()
+    }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -88,26 +102,34 @@ fun InformationScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            state = lazyColumnListState,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
         ) {
-            items(
-                infoList.value.size,
-                key = { infoList.value[it].id }
+
+            LazyColumn(
+                state = lazyColumnListState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
             ) {
-                InformationCard(infoList.value[it])
-                Spacer(Modifier.height(8.dp))
+                items(
+                    infoList.value.size,
+                    key = { infoList.value[it].id }
+                ) {
+                    InformationCard(infoList.value[it])
+                    Spacer(Modifier.height(8.dp))
+                }
             }
         }
+
     }
 }
 
 @Composable
 fun InformationCard(data: Information) {
+    val context = LocalContext.current
     Card {
         Row(
             modifier = Modifier
@@ -117,13 +139,23 @@ fun InformationCard(data: Information) {
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageUrl = data.thumbnailUrl
+            val placeholderImage = R.drawable.ic_image_placeholder
+            val imageRequest = ImageRequest.Builder(context)
+                .data(imageUrl)
+                .memoryCacheKey(imageUrl)
+                .diskCacheKey(imageUrl)
+                .placeholder(placeholderImage)
+                .error(placeholderImage)
+                .fallback(placeholderImage)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .transformations(CircleCropTransformation())
+                .build()
+
+
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .addHeader("User-Agent", WebSettings.getDefaultUserAgent(LocalContext.current))
-                    .data(data.thumbnailUrl)
-                    .crossfade(true)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .build(),
+                model = imageRequest,
                 placeholder = painterResource(R.drawable.ic_image_placeholder),
                 error = painterResource(R.drawable.ic_image_placeholder),
                 fallback = painterResource(R.drawable.ic_image_placeholder),

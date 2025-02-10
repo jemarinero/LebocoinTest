@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.ui.features.infolist.InformationScreen
 import com.lebocoin.ui.features.splash.SplashScreen
 
@@ -12,7 +13,8 @@ import com.lebocoin.ui.features.splash.SplashScreen
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = NavigationItem.Splash.route
+    startDestination: String = NavigationItem.Splash.route,
+    onError: (errorType: ErrorType?) -> Unit
 ) {
     NavHost(
         modifier = modifier,
@@ -20,12 +22,16 @@ fun AppNavHost(
         startDestination = startDestination
     ) {
         composable(NavigationItem.Splash.route) {
-            SplashScreen {
+            SplashScreen(
+                onError = { onError.invoke(it) }
+            ) {
                 navController.navigate(NavigationItem.Home.route)
             }
         }
         composable(NavigationItem.Home.route) {
-            InformationScreen()
+            InformationScreen {
+                onError.invoke(it)
+            }
         }
     }
 }

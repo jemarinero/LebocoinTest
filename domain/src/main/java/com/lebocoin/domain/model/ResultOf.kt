@@ -2,12 +2,12 @@ package com.lebocoin.domain.model
 
 sealed class ResultOf<out T> {
     data class Success<out R>(val value: R): ResultOf<R>()
-    data class Failure(val requestFailure: RequestFailure): ResultOf<Nothing>()
+    data class Failure(val errorType: ErrorType): ResultOf<Nothing>()
 }
 
-inline fun <reified T> ResultOf<T>.doIfFailure(callback: (failure: RequestFailure?) -> Unit) {
+inline fun <reified T> ResultOf<T>.doIfFailure(callback: (failure: ErrorType?) -> Unit) {
     if (this is ResultOf.Failure) {
-        callback(requestFailure)
+        callback(errorType)
     }
 }
 
