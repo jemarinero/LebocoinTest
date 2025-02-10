@@ -16,6 +16,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lebocoin.domain.model.ErrorType
 import com.lebocoin.ui.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun ErrorComponent(
@@ -41,6 +47,16 @@ fun ErrorComponent(
         ErrorType.EmptyError -> stringResource(R.string.msg_no_data_available)
         null -> null
     }
+    var innerVisibility by remember {
+        mutableStateOf(true)
+    }
+
+    LaunchedEffect(key1 = innerVisibility) {
+        delay(10000)
+        innerVisibility = false
+        onDismiss()
+    }
+
     AnimatedVisibility(errorType != null) {
         Box(
             modifier = Modifier
