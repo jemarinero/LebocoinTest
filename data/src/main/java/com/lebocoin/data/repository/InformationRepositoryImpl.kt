@@ -1,5 +1,7 @@
 package com.lebocoin.data.repository
 
+import com.lebocoin.data.common.IMAGE_BASE_URL
+import com.lebocoin.data.common.IMAGE_OLD_URL
 import com.lebocoin.data.datasource.InformationLocalDS
 import com.lebocoin.data.datasource.InformationRemoteDS
 import com.lebocoin.data.model.toDomain
@@ -24,7 +26,13 @@ constructor(
         var response: ResultOf<Unit> = ResultOf.Failure(RequestFailure.UnknownError)
         result.doIfSuccess { data ->
             localDS.deleteAll()
-            data.forEach { localDS.insertOrUpdate(it.toEntity()) }
+            data.forEach { info ->
+                localDS.insertOrUpdate(
+                    info.copy(
+                        url = info.url.replace(IMAGE_OLD_URL, IMAGE_BASE_URL),
+                        thumbnailUrl = info.thumbnailUrl.replace(IMAGE_OLD_URL, IMAGE_BASE_URL)
+                    ).toEntity())
+            }
            response = ResultOf.Success(Unit)
         }
         result.doIfFailure {
