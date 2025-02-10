@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.lebocoin.test.ui.theme.LebocoinTheme
+import com.lebocoin.test.ui.theme.LeboncoinTheme
 import com.lebocoin.ui.features.main.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LebocoinTheme {
+            LeboncoinTheme {
                 MainScreen()
             }
         }
